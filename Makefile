@@ -1,4 +1,4 @@
-BUVSim: bin/BUVSim.o bin/BUVSimTest.o
+BUVSim: bin/BUVSim.o bin/BUVSimTest.o bin/Controller.o
 	g++ -o bin/BUVSim bin/*.o
 
 bin/BUVSim.o: src/BUVSim.cpp
@@ -12,3 +12,6 @@ bin/BUVSimTest.o: test/BUVSimTest.cpp
 clean:
 	rm bin/*.o bin/BUVSim
 
+bin/Controller.o: test/Controller.cpp
+	mkdir -p bin
+	g++ -c test/Controller.cpp -o bin/Controller.o -Iinclude -Iinclude/Eigen3 -std=c++11

@@ -3,6 +3,7 @@
 #include "Controller.hpp"
 #include <cmath>
 #include <iostream>
+#include <optional>
 
 using namespace std;
 //using namespace Eigen;
@@ -27,9 +28,9 @@ int main()
 	// First column: tail fin
 	// Second column: left fin
 	// Third column: right fin
-	motorCom.col(0) <<  2500.0, 0.0, 20.0;
-	motorCom.col(1) << 1500.0, 0.0, 20.0;
-	motorCom.col(2) << 1500.0, 0.0, 20.0;
+	motorCom.col(0) << 0.0, 0.0, 0.0;
+	motorCom.col(1) << 0.0, 0.0, 0.0;
+	motorCom.col(2) << 0.0, 0.0, 0.0;
 	buv.setMotorCommands(motorCom);
 
 	cout << "SeaCurr:" << endl;
@@ -39,7 +40,8 @@ int main()
 
 	cout <<buv.getState().transpose()<<endl;
 	
-	Point p(50.0,0.0,50.0);
+	
+	Point p(20.0,30.0,0.0);
 	
 	Point p1(0.0,0.0,0.0);
 	
@@ -58,11 +60,14 @@ int main()
 	
 	for(int i=0; i<N; i++){
 		
-		BUVSimInterface::MotorCommand newMotorCommand;
+		std::optional<BUVSimInterface::MotorCommand> newMotorCommand;
 		BUVSimInterface::State s = buv.getState();
 		newMotorCommand = controller.goToPoint(p , s, currentMotorCom);	
+		
+			if (!newMotorCommand.has_value())
+			break;
 	
-		buv.setMotorCommands(newMotorCommand);
+			buv.setMotorCommands(newMotorCommand.value());
 		buv.update();
 
 		cout<<"i "<<i<<endl;
@@ -70,9 +75,9 @@ int main()
 		if (i == 1){
 			
 			cout<<"motorCommand "<<endl;
-			cout<<newMotorCommand.col (0).transpose()<<endl;
-			cout<<newMotorCommand.col (1).transpose()<<endl;
-			cout<<newMotorCommand.col (2).transpose()<<endl;
+			cout<<newMotorCommand.value().col (0).transpose()<<endl;
+			cout<<newMotorCommand.value().col (1).transpose()<<endl;
+			cout<<newMotorCommand.value().col (2).transpose()<<endl;
 			
 			cout<<"currentMotorCom "<<endl;
 			cout<<currentMotorCom.col (0).transpose()<<endl;
@@ -82,7 +87,7 @@ int main()
 
 
 		cout <<buv.getState().transpose()<<endl;
-
+		cout <<"DState "<<buv.getDState().transpose()<<endl;
 	}
 	return 0;
 }

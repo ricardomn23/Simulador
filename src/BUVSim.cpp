@@ -263,7 +263,8 @@ void BUV1_Sim::initD()
 
 void BUV1_Sim::initG()
 {
-	auxG = 10.0;
+	auxG = 0.0; //flutuabilidade igual a zero
+	//auxG = 10.0; // flutubilidade proposta pelos polacos
 	G.tail<3>().setZero();
 }
 
@@ -337,7 +338,7 @@ BUV1_Sim::Actuation BUV1_Sim::getTau(PRECISION t, BUV1_Sim::DState const &dstate
 	tau[5] += r4*aux;
 	aux = leftThrust*sFin;
 	tau[2] += aux;
-	tau[4] -= r3*aux;
+	tau[4] -= r3*aux; //pitch da barbatana lateral
 
 	// 		Side fins drag (Piotr kind of "hack"):
 	drag = xvxx*dstate[0]*abs(sFin);
@@ -353,7 +354,7 @@ BUV1_Sim::Actuation BUV1_Sim::getTau(PRECISION t, BUV1_Sim::DState const &dstate
 	tau[5] -= r4*aux;
 	aux = rightThrust*sFin;
 	tau[2] += aux;
-	tau[4] -= r3*aux;
+	tau[4] -= r3*aux; //pitch da barbatana lateral
 
 	// Side fins drag (Piotr kind of "hack"):
 	drag = xvxx*dstate[0]*abs(sFin);

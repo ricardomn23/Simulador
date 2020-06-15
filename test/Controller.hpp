@@ -3,8 +3,10 @@
 
 #include <optional>
 #include "BUVSim/BUVSim.hpp"
+#include "ControllerFins.hpp"
+#include "ControllerVelocity.hpp"
 
-using Point = Eigen::Matrix < PRECISION, 3, 1 >;
+//using Point = Eigen::Matrix < PRECISION, 3, 1 >;
 
 
 class Controller { 
@@ -15,14 +17,11 @@ public:
 	
 	std::optional<BUVSimInterface::MotorCommand> goToPoint(Point p, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC);
 	
-	PRECISION calculateVelocity (BUVSimInterface::DState ds);
-	
 private:
 
-	PRECISION calculateDeflection(PRECISION angleAxisC, PRECISION a, PRECISION b, PRECISION amp);
-	//PRECISION calculateVelocity (BUVSimInterface::DState ds);
-
-
+	ControllerTail controllerTail;
+	ControllerSideFins controllerSideFins;
+	ControllerVelocity controllerVelocity;
 
 };
 

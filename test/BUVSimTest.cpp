@@ -29,10 +29,10 @@ int main()
 	// Second column: left fin
 	// Third column: right fin
 	motorCom.col(0) << 1500.0, 0.0, 20.0;
-	motorCom.col(1) << 1500.0, 0.0, 20.0;
-	motorCom.col(2) << 1500.0, 0.0, 20.0;
+	motorCom.col(1) << 0.0, 0.0, 0.0;
+	motorCom.col(2) << 0.0, 0.0, 0.0;
 	buv.setMotorCommands(motorCom);
-	controller.calculateVelocity(buv.getDState());
+	//controller.calculateVelocity(buv.getDState());
 
 	cout << "SeaCurr:" << endl;
 	cout << curr << endl;
@@ -42,7 +42,7 @@ int main()
 	cout <<buv.getState().transpose()<<endl;
 	
 	
-	Point p(50.0,0.0,0.0);
+	Point p(30.0,30.0,0.0);
 	
 	Point p1(0.0,0.0,0.0);
 	
@@ -86,8 +86,8 @@ int main()
 			cout<<currentMotorCom.col (2).transpose()<<endl;
 		}
 
-		PRECISION velocity = controller.calculateVelocity(buv.getDState());
-		cout<<"velocity "<<velocity<<endl;
+		//PRECISION velocity = controller.calculateVelocity(buv.getDState());
+		//cout<<"velocity "<<velocity<<endl;
 
 		cout <<buv.getState().transpose()<<endl;
 		cout <<"DState "<<buv.getDState().transpose()<<endl;

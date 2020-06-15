@@ -12,12 +12,15 @@ class Controller {
 public: 
 	Controller();
 	~Controller();
+	
 	std::optional<BUVSimInterface::MotorCommand> goToPoint(Point p, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC);
+	
+	PRECISION calculateVelocity (BUVSimInterface::DState ds);
 	
 private:
 
 	PRECISION calculateDeflection(PRECISION angleAxisC, PRECISION a, PRECISION b, PRECISION amp);
-	
+	//PRECISION calculateVelocity (BUVSimInterface::DState ds);
 
 
 

@@ -17,7 +17,7 @@ int main()
 
 	float T = 1.0/18.0;   // Sampling time
 	//float N = ceil(40.0/T);   // Simulation steps
-	float N = 3000.0;
+	float N = 1000.0;
 
 	Controller controller;
 	BUV1_Sim buv(T, true);
@@ -28,10 +28,11 @@ int main()
 	// First column: tail fin
 	// Second column: left fin
 	// Third column: right fin
-	motorCom.col(0) << 0.0, 0.0, 0.0;
-	motorCom.col(1) << 0.0, 0.0, 0.0;
-	motorCom.col(2) << 0.0, 0.0, 0.0;
+	motorCom.col(0) << 1500.0, 0.0, 20.0;
+	motorCom.col(1) << 1500.0, 0.0, 20.0;
+	motorCom.col(2) << 1500.0, 0.0, 20.0;
 	buv.setMotorCommands(motorCom);
+	controller.calculateVelocity(buv.getDState());
 
 	cout << "SeaCurr:" << endl;
 	cout << curr << endl;
@@ -41,7 +42,7 @@ int main()
 	cout <<buv.getState().transpose()<<endl;
 	
 	
-	Point p(20.0,30.0,0.0);
+	Point p(50.0,0.0,0.0);
 	
 	Point p1(0.0,0.0,0.0);
 	
@@ -85,9 +86,12 @@ int main()
 			cout<<currentMotorCom.col (2).transpose()<<endl;
 		}
 
+		PRECISION velocity = controller.calculateVelocity(buv.getDState());
+		cout<<"velocity "<<velocity<<endl;
 
 		cout <<buv.getState().transpose()<<endl;
 		cout <<"DState "<<buv.getDState().transpose()<<endl;
+		
 	}
 	return 0;
 }

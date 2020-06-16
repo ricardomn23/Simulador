@@ -14,11 +14,14 @@ class Controller {
 public: 
 	Controller();
 	~Controller();
+	Controller(PRECISION ampTail, PRECISION ampSideFins);
 	
-	std::optional<BUVSimInterface::MotorCommand> goToPoint(Point p, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC);
+	std::optional<BUVSimInterface::MotorCommand> goToPoint(Point p, PRECISION v, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC, BUVSimInterface::DState ds);
 	
 private:
 
+	PRECISION ampTail;
+	PRECISION ampSideFins;
 	ControllerTail controllerTail;
 	ControllerSideFins controllerSideFins;
 	ControllerVelocity controllerVelocity;

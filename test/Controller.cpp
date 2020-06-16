@@ -17,32 +17,44 @@ float distance (Point a, Point b){
 		
 }
 
-Controller::Controller(){ 
-/*
-	ControllerTail tail;
-	ControllerSideFins sideFins;
-	ControllerVelocity velocity;
+Controller::Controller(PRECISION ampTail, PRECISION ampSideFins){
 	
-	this -> controllerTail = tail;
-	this -> controllerSideFins = sideFins;
-	this -> controllerVelocity = velocity;
-*/
+	this->ampTail = ampTail;
+	this->ampSideFins = ampSideFins;
+	
+}
+Controller::Controller(){
+	
+	this->ampTail = 20.0;
+	this->ampSideFins = 20.0;
+	
 }
 Controller::~Controller(){}
 
-std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC){
+
+std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, PRECISION v, BUVSimInterface::State s, BUVSimInterface::MotorCommand &currentMC,  BUVSimInterface::DState ds) {
 	
 	
 	Point sPoint(s(0),s(1),s(2)); //ponto atraves do s (estado do veiculo)
 	
-	PRECISION l = distance(p, sPoint); //distancia entre o ponto dado e o ponto atual
-	PRECISION ls = 0.75; //distancia ao ponto em que o veículo coloca todos os comandos a zero
 	
-	if (l < 1.0)
+	PRECISION l = distance(p, sPoint); //distancia entre o ponto dado e o ponto atual
+	//PRECISION ls = 5.0; //distancia ao ponto em que o veículo coloca todos os comandos a zero
+	
+	cout<<"distancia "<<l<<endl;
+	
+	if (l < 5.0)
 		
 		return{};
 	
 	else {
+		
+		PRECISION newFrequency = this -> controllerVelocity.freqForVelocity (ds, v, currentMC(0,0));
+			
+		currentMC(0,0) = newFrequency;
+			
+		
+		
 		/*
 		if(l < 0){
 			
@@ -64,7 +76,7 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, BUVS
 		
 		currentMC(1,0) = this -> controllerTail.deflection (p, s);
 		
-		/*
+		
 		//predefinição dos valores de atuação de Frequencia e Amplitude na cauda principal
 		if (currentMC(0,0) == 0.0){
 			
@@ -74,10 +86,10 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, BUVS
 		
 		if (currentMC (2,0) == 0.0){
 			
-			currentMC (2,0) = 30.0;
+			currentMC (2,0) = this->ampTail;
 			
 		}
-		*/
+		
 		//barbatanas laterais esquerda e direita
 		
 		PRECISION deflectionLR = this -> controllerSideFins.deflection (p, s);
@@ -100,13 +112,13 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, BUVS
 		
 		if (currentMC (2,1) == 0.0){
 			
-			currentMC (2,1) = 20.0;
+			currentMC (2,1) = this->ampSideFins;
 			
 		}
 		
 		if (currentMC (2,2) == 0.0){
 			
-			currentMC (2,2) = 20.0;
+			currentMC (2,2) = this->ampSideFins;
 			
 		}
 		*/

@@ -19,7 +19,7 @@ int main()
 	//float N = ceil(40.0/T);   // Simulation steps
 	float N = 1000.0;
 
-	Controller controller;
+	Controller controller (20.0, 20.0);
 	BUV1_Sim buv(T, true);
 	Eigen::Matrix < float, 3, 1 > curr(0.0,0.0,0.0);
 	buv.setSeaCurr(curr);
@@ -28,9 +28,9 @@ int main()
 	// First column: tail fin
 	// Second column: left fin
 	// Third column: right fin
-	motorCom.col(0) << 1500.0, 0.0, 20.0;
-	motorCom.col(1) << 0.0, 0.0, 0.0;
-	motorCom.col(2) << 0.0, 0.0, 0.0;
+	motorCom.col(0) << 0.0, 0.0, 0.0;
+	motorCom.col(1) << 1500.0, 0.0, 20.0;
+	motorCom.col(2) << 1500.0, 0.0, 20.0;
 	buv.setMotorCommands(motorCom);
 	//controller.calculateVelocity(buv.getDState());
 
@@ -41,8 +41,8 @@ int main()
 
 	cout <<buv.getState().transpose()<<endl;
 	
-	
-	Point p(30.0,30.0,0.0);
+	PRECISION v = 2.5;
+	Point p(10.0,10.0,10.0);
 	
 	Point p1(0.0,0.0,0.0);
 	
@@ -63,12 +63,13 @@ int main()
 		
 		std::optional<BUVSimInterface::MotorCommand> newMotorCommand;
 		BUVSimInterface::State s = buv.getState();
-		newMotorCommand = controller.goToPoint(p , s, currentMotorCom);	
+		BUVSimInterface::DState ds = buv.getDState();
+		newMotorCommand = controller.goToPoint(p , v, s, currentMotorCom, ds);	
 		
-			if (!newMotorCommand.has_value())
+		if (!newMotorCommand.has_value())
 			break;
 	
-			buv.setMotorCommands(newMotorCommand.value());
+		buv.setMotorCommands(newMotorCommand.value());
 		buv.update();
 
 		cout<<"i "<<i<<endl;

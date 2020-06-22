@@ -16,6 +16,7 @@ BUVSimInterface::BUVSimInterface(PRECISION T)
 	LG.topRightCorner<3,3>().setZero();
 
 	seaCurr.setZero();
+	buoyancy = 0.0;
 
 	useLog = logging = false;
 
@@ -228,19 +229,24 @@ void BUV1_Sim::initThrustParams()
 	xvxx=0.91;
 #endif
 
+	f2wFactor = M_PI*2.0;
+	rpm2fFactor = 1.0/60.0/12.0;
+//	rpm2wFactor = M_PI / 30.0 / 12.0;  // Gearbox with 1:12 ratio
+	deg2radFactor = M_PI /180.0;
+
 	refAmp = 20.0; // 20 degrees, just guessing the amplitude of the sinusoids used to
 				  // acquire the following data...
 
 	tailRPM << 0.0, 300.0, 600.0, 900.0, 1200.0, 1500.0, 3000.0;
+	tailRPM *= rpm2fFactor;
 	tailAvThrusts << 0.0, 0.4, 1.2, 2.4, 6.4, 12.8, 18.0;
 	tailAmpThrusts << 0.0, 0.6, 1.2, 3.2, 6.2, 8.2, 14.2;
 
 	sideRPM << 0.0, 300.0, 600.0, 900.0, 1200.0, 1500.0, 3000.0;
+	sideRPM *= rpm2fFactor;
 	sideAvThrusts << 0.0, 0.15, 0.5, 1.2, 3.2, 6.2, 8.0;
 	sideAmpThrusts << 0.0, 0.2, 0.4, 1.2, 2.2, 3.2, 5.2;
 
-	rpm2wFactor = M_PI / 30.0 / 12.0;  // Gearbox with 1:12 ratio
-	deg2radFactor = M_PI /180.0;
 
 	tailAvThrust = tailAmpThrust = tailDefletion = tailW = 0.0;
 	leftAvThrust = leftAmpThrust = leftDefletion = leftW = 0.0;
@@ -263,14 +269,12 @@ void BUV1_Sim::initD()
 
 void BUV1_Sim::initG()
 {
-	auxG = 0.0; //flutuabilidade igual a zero
-	//auxG = 10.0; // flutubilidade proposta pelos polacos
 	G.tail<3>().setZero();
 }
 
 void BUV1_Sim::updateThrustParams(BUV1_Sim::MotorCommand const &mCommand)
 {
-	// Each mCommand column: frequency (RPM), mean value (degrees), amplitude (degrees)
+	// Each mCommand column: frequency (Hz), mean value (degrees), amplitude (degrees)
 	// First column: tail fin
 	// Second column: left fin
 	// Third column: right fin
@@ -281,19 +285,19 @@ void BUV1_Sim::updateThrustParams(BUV1_Sim::MotorCommand const &mCommand)
 	tailAvThrust = interpolate(tailRPM,tailAvThrusts,mCommand(0,0)) * scale;
 	tailAmpThrust = interpolate(tailRPM,tailAmpThrusts,mCommand(0,0)) * scale;
 	tailDefletion = mCommand(1,0) * deg2radFactor;
-	tailW = rpm2wFactor*mCommand(0,0);
+	tailW = f2wFactor*mCommand(0,0);
 
 	scale = mCommand(2,1)/refAmp;
 	leftAvThrust = interpolate(sideRPM,sideAvThrusts,mCommand(0,1)) * scale;
 	leftAmpThrust = interpolate(sideRPM,sideAmpThrusts,mCommand(0,1)) * scale;
 	leftDefletion = mCommand(1,1) * deg2radFactor;
-	leftW = rpm2wFactor*mCommand(0,1);
+	leftW = f2wFactor*mCommand(0,1);
 
 	scale = mCommand(2,2)/refAmp;
 	rightAvThrust = interpolate(sideRPM, sideAvThrusts, mCommand(0,2)) * scale;
 	rightAmpThrust = interpolate(sideRPM, sideAmpThrusts, mCommand(0,2)) * scale;
 	rightDefletion = mCommand(1,2) * deg2radFactor;
-	rightW = rpm2wFactor*mCommand(0,2);
+	rightW = f2wFactor*mCommand(0,2);
 }
 
 void BUV1_Sim::updateD(BUV1_Sim::DState const &dstate)
@@ -303,9 +307,9 @@ void BUV1_Sim::updateD(BUV1_Sim::DState const &dstate)
 
 void BUV1_Sim::updateG(BUV1_Sim::State const &state)
 {
-	G(0) = auxG*sTheta;
-	G(1) = auxG*cTheta*sPhi;
-	G(2) = -auxG*cTheta*cPhi;
+	G(0) = buoyancy*sTheta;
+	G(1) = buoyancy*cTheta*sPhi;
+	G(2) = -buoyancy*cTheta*cPhi;
 }
 
 BUV1_Sim::Actuation BUV1_Sim::getTau(PRECISION t, BUV1_Sim::DState const &dstate)
@@ -338,12 +342,12 @@ BUV1_Sim::Actuation BUV1_Sim::getTau(PRECISION t, BUV1_Sim::DState const &dstate
 	tau[5] += r4*aux;
 	aux = leftThrust*sFin;
 	tau[2] += aux;
-	tau[4] -= r3*aux; //pitch da barbatana lateral
+	tau[4] -= r3*aux;
 
 	// 		Side fins drag (Piotr kind of "hack"):
 	drag = xvxx*dstate[0]*abs(sFin);
 	tau[0] -= drag;
-	tau[4] += drag*r4;
+	tau[5] += drag*r4;
 
 	// Right fin:
 	cFin = cos(rightDefletion);
@@ -354,12 +358,12 @@ BUV1_Sim::Actuation BUV1_Sim::getTau(PRECISION t, BUV1_Sim::DState const &dstate
 	tau[5] -= r4*aux;
 	aux = rightThrust*sFin;
 	tau[2] += aux;
-	tau[4] -= r3*aux; //pitch da barbatana lateral
+	tau[4] -= r3*aux;
 
 	// Side fins drag (Piotr kind of "hack"):
 	drag = xvxx*dstate[0]*abs(sFin);
 	tau[0] -= drag;
-	tau[4] -= drag*r4;
+	tau[5] -= drag*r4;
 
 	return tau;
 }

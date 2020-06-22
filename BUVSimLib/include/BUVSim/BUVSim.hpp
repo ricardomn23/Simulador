@@ -5,8 +5,6 @@
 #include <string>
 #include <fstream>
 
-#include <optional>
-
 #include <Eigen/Dense>
 
 
@@ -28,8 +26,10 @@ public:
 			   SeaCurr const &curr = SeaCurr::Zero());
 	void setSeaCurr( SeaCurr const &curr ) {
 		seaCurr = curr; }
+	void setBuoyancy( PRECISION b) {
+		buoyancy = b; }
 	void setMotorCommands(MotorCommand const &mCommand);
-	// Each mCommand column: frequency (RPM), mean value (degrees), amplitude (degrees)
+	// Each mCommand column: frequency (Hz), mean value (degrees), amplitude (degrees)
 	// First column: tail fin
 	// Second column: left fin
 	// Third column: right fin
@@ -71,6 +71,7 @@ protected:
 	DDState dds;
 	Actuation tau;
 	SeaCurr seaCurr;
+	PRECISION buoyancy;
 
 	PRECISION cPhi,sPhi,cTheta,sTheta,tTheta,cPsi,sPsi;
 
@@ -108,7 +109,7 @@ protected:
 		Eigen::Matrix<PRECISION, 7, 1> const &yVec, PRECISION x);
 
 	PRECISION r1, r2, r3, r4, xvxx;
-	PRECISION rpm2wFactor, deg2radFactor;
+	PRECISION f2wFactor, rpm2fFactor, deg2radFactor;
 	PRECISION refAmp;
 	Eigen::Matrix<PRECISION, 7, 1> tailRPM, tailAvThrusts, tailAmpThrusts;
 	Eigen::Matrix<PRECISION, 7, 1> sideRPM, sideAvThrusts, sideAmpThrusts;

@@ -25,8 +25,8 @@ Controller::Controller(PRECISION ampTail, PRECISION ampSideFins){
 }
 Controller::Controller(){
 	
-	this->ampTail = 20.0;
-	this->ampSideFins = 20.0;
+	this->ampTail = 20.0;  //valores predefinidos de amplitude para a cauda principal
+	this->ampSideFins = 20.0; //valores predefinidos para a amplitude das barbatanas laterais
 	
 }
 Controller::~Controller(){}
@@ -43,15 +43,15 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, PREC
 	
 	cout<<"distancia "<<l<<endl;
 	
-	if (l < 5.0)
+	if (l < 3.5) //distancia do ponto dado a que é terminada a simulação
 		
 		return{};
 	
 	else {
 		
-		PRECISION newFrequency = this -> controllerVelocity.freqForVelocity (ds, v, currentMC(0,0));
+		//PRECISION newFrequency = this -> controllerVelocity.freqForVelocity (ds, v, currentMC(0,0));
 			
-		currentMC(0,0) = newFrequency;
+		//currentMC(0,0) = newFrequency;
 			
 		
 		
@@ -74,9 +74,16 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, PREC
 		*/
 		//cauda principal 		 
 		
-		currentMC(1,0) = this -> controllerTail.deflection (p, s);
+		//currentMC(1,0) = this -> controllerTail.deflection (p, s, currentMC(2,0));
 		
-		
+//	cout << currentMC(1,0) << endl;
+//	cin.get();
+/*
+		if( currentMC(1,0) > 40.0)
+			currentMC(1,0) = 40.0;
+		if( currentMC(1,0) < -40.0)
+			currentMC(1,0) = -40.0;
+*/		
 		//predefinição dos valores de atuação de Frequencia e Amplitude na cauda principal
 		if (currentMC(0,0) == 0.0){
 			
@@ -92,11 +99,17 @@ std::optional<BUVSimInterface::MotorCommand> Controller::goToPoint(Point p, PREC
 		
 		//barbatanas laterais esquerda e direita
 		
-		PRECISION deflectionLR = this -> controllerSideFins.deflection (p, s);
+		PRECISION deflectionLR = this -> controllerSideFins.deflection (p, s, currentMC(2,1)); //controlador de altura que funciona
+		/*if( deflectionLR > 40.0)
+			deflectionLR = 40.0;
+		if( deflectionLR < -40.0)
+			deflectionLR = -40.0;
+		*/
+		//PRECISION deflectionLR = this -> controllerHeight.deflection (p, s, currentMC(2,1)); //controlador de altura que nao funciona 
 		
 		currentMC (1 , 1) =  deflectionLR;		
 		currentMC (1 , 2) =  deflectionLR;
-	
+		
 		/*
 		//predefinição dos valores de atuação de Frequencia e Amplitude nas caudas laterias
 		if (currentMC (0,1) == 0.0){

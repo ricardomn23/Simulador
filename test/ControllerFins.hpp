@@ -11,11 +11,11 @@ class ControllerFinsInterface {
 	
 public:
 
-	virtual PRECISION deflection(Point p, BUVSimInterface::State s) = 0;
+	virtual PRECISION deflection(Point p, BUVSimInterface::State s, PRECISION amp) = 0;
 	
 protected:
 
-	PRECISION calculateDeflection(PRECISION angleAxisC, PRECISION a, PRECISION b);
+	PRECISION calculateDeflection(PRECISION angleAxisC, PRECISION a, PRECISION b, PRECISION amp);
 	
 
 
@@ -28,8 +28,11 @@ public:
 	ControllerTail();
 	~ControllerTail();
 
-	PRECISION deflection(Point p, BUVSimInterface::State s);
+	PRECISION deflection(Point p, BUVSimInterface::State s, PRECISION amp);
 
+protected:
+	
+	
 };
 
 
@@ -39,9 +42,21 @@ public:
 	ControllerSideFins();
 	~ControllerSideFins();
 
-	PRECISION deflection(Point p, BUVSimInterface::State s);
+	PRECISION deflection(Point p, BUVSimInterface::State s, PRECISION amp);
+
+protected:
+	
 
 };
 
+class ControllerHeight : public ControllerFinsInterface { 
 
+public: 
+	ControllerHeight();
+	~ControllerHeight();
+
+	PRECISION deflection(Point p, BUVSimInterface::State s, PRECISION amp);
+	
+
+};
 #endif

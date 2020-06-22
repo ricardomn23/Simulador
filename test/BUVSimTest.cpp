@@ -17,9 +17,9 @@ int main()
 
 	float T = 1.0/18.0;   // Sampling time
 	//float N = ceil(40.0/T);   // Simulation steps
-	float N = 1000.0;
+	float N = 2000.0;
 
-	Controller controller (20.0, 20.0);
+	Controller controller (20.0, 20.0); //predefinição da amplitude da cauda e barbatanas laterais
 	BUV1_Sim buv(T, true);
 	Eigen::Matrix < float, 3, 1 > curr(0.0,0.0,0.0);
 	buv.setSeaCurr(curr);
@@ -41,8 +41,8 @@ int main()
 
 	cout <<buv.getState().transpose()<<endl;
 	
-	PRECISION v = 2.5;
-	Point p(10.0,10.0,10.0);
+	PRECISION v = 1.8; //valor desejado de velocidade
+	Point p(-20.0,0.0,10.0); //ponto desejado
 	
 	Point p1(0.0,0.0,0.0);
 	
@@ -70,10 +70,11 @@ int main()
 			break;
 	
 		buv.setMotorCommands(newMotorCommand.value());
+		
 		buv.update();
 
 		cout<<"i "<<i<<endl;
-
+/*
 		if (i == 1){
 			
 			cout<<"motorCommand "<<endl;
@@ -86,7 +87,7 @@ int main()
 			cout<<currentMotorCom.col (1).transpose()<<endl;
 			cout<<currentMotorCom.col (2).transpose()<<endl;
 		}
-
+*/
 		//PRECISION velocity = controller.calculateVelocity(buv.getDState());
 		//cout<<"velocity "<<velocity<<endl;
 

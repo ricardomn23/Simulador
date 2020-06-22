@@ -6,7 +6,7 @@
 
 #define TRUNCAR(x) (std::remainder(x,360.0))
 
-#define Kv 3.0
+#define Kv 6.0
 
 using namespace std;
 
@@ -42,7 +42,7 @@ PRECISION ControllerVelocity::freqForVelocity (BUVSimInterface::DState ds, PRECI
 		}
 	}
 	
-	else if (velocityError = 0){
+	else if (velocityError == 0){
 		
 		return frequency; //quando é atingida a velocidade pretendida, mantem a frequencia
 		
@@ -56,7 +56,7 @@ PRECISION ControllerVelocity::freqForVelocity (BUVSimInterface::DState ds, PRECI
 	
 	else {
 		
-		newFrequency = frequency + (9.0/10.0) * velocityError * frequency; // quando a velocidade é ligueiramente superior à pretendida, é reduzida por 0.5 vezes o erro
+		newFrequency = frequency + (9.0/10.0) * velocityError * frequency; // quando a velocidade é ligueiramente superior à pretendida, é reduzida por 0.1 vezes o erro
 		
 	}
 	

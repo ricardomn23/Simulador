@@ -26,6 +26,7 @@ private:
 	ControllerSideFins controllerSideFins;
 	ControllerVelocity controllerVelocity;
 
+	ControllerHeight controllerHeight;
 };
 
 #endif

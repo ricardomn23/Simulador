@@ -83,14 +83,14 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 
 // Constructor sets default values for variables
 Controller::Controller() :
-	maxTailAmp(45.0),
-	maxTailDev(60.0),
-	maxTailFreq(3.0),
-	cruiseTailAmp(20.0),
-	maxSideAmp(45.0),
-	maxSideDev(60.0),
+	maxTailAmp(45.0), //maximo valor de amplitude cauda
+	maxTailDev(80.0), //maximo valor de deflection cauda
+	maxTailFreq(3.0), //maximo valor de frequencia da cauda
+	cruiseTailAmp(30.0), //valor standard de amplitude da cauda
+	maxSideAmp(45.0), //maximo valor de amplitude das barbatanas alterais
+	maxSideDev(80.0),
 	maxSideFreq(3.0),
-	cruiseSideAmp(20.0),
+	cruiseSideAmp(30.0),
 	cruiseSideFreq(1.0)
 {}
 
@@ -114,6 +114,12 @@ Controller::MotorCommand Controller::control(Behaviour::Actuation act) {
 	// heading control:
 	speedControl( act[3], mCommand );
 	
+	//chamar o physicalLimits para a cauda
+	std::tuple<Float, Float> deflectionAmp = physicalLimits (mCommand(1,0),mCommand(2,0));
+	
+	mCommand(1,0) = std::get<0>(deflectionAmp); //deflection
+	mCommand(2,0) = std::get<1>(deflectionAmp); //amplitude
+	
 	// If simulator uses frequency in RPM uncomment this:
 	//mCommand.row(0) *= 60.0 * 12.0;   // Gearbox with 1:12 ratio
 	
@@ -129,6 +135,11 @@ void Controller::pitchControl( Float dPitch, MotorCommand &mCommand ) {
 	
 	mCommand(2,1) = mCommand(2,2) = cruiseSideAmp;
 	mCommand(0,1) = mCommand(0,2) = cruiseSideFreq;
+	
+	std::tuple<Float, Float> deflectionAmp = physicalLimits (mCommand(1,2), mCommand(2,2));
+	
+	mCommand(1,1) = mCommand(1,2) = std::get<0>(deflectionAmp); //deflection
+	mCommand(2,1) = mCommand(2,2) = std::get<1>(deflectionAmp); //amplitude
 }
 
 void Controller::headingControl( Float dHeading, MotorCommand &mCommand ) {
@@ -140,5 +151,33 @@ void Controller::speedControl( Float dSpeed, MotorCommand &mCommand ) {
 	mCommand(0,0) = LIMIT(dSpeed,0.0,1.0) * maxTailFreq;
 }
 
+std::tuple<Controller::Float, Controller::Float> Controller::physicalLimits( Float deflection, Float amp ) {
+	
+	Float infLimitFin = deflection - amp;
+	
+	if (infLimitFin < -85.0){
+		
+		Float excess = infLimitFin + 85.0;
+		
+		Float newAmp = amp + excess;
+		
+		return std::make_tuple (deflection, newAmp);
+		
+	}
+	
+	Float supLimitFin = deflection + amp;
+	
+	if (supLimitFin > 85.0){
+		
+		Float excess = supLimitFin - 85.0;
+		
+		Float newAmp = amp - excess;
+		
+		return std::make_tuple (deflection, newAmp);
+		
+	}
+	
+	return std::make_tuple (deflection, amp);
+}
 
 

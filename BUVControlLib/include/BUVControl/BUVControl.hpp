@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <Eigen/Dense>
+#include <tuple>
 
 #define TRUNCATE_DEG(x) (std::remainder(x,360.0))
 #define TRUNCATE_RAD(x) (std::remainder(x,2.0*M_PI))
@@ -108,6 +109,8 @@ class Controller {
 		void headingControl( Float dHeading, MotorCommand &mCommand );
 		void speedControl( Float dSpeed, MotorCommand &mCommand );
 
+		std::tuple<Float, Float> physicalLimits( Float deflection, Float amp );
+
 	protected:
 		Deg maxTailAmp;
 		Deg maxTailDev;
@@ -119,5 +122,7 @@ class Controller {
 		Hertz maxSideFreq;
 		Deg cruiseSideAmp;
 		Hertz cruiseSideFreq;
+		
+		
 };
 

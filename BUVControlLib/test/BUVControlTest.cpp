@@ -14,7 +14,7 @@ int main()
 	cout << "BUV3 Control Demo" << endl;
 
 	float T = 0.05;   					// Sampling time
-	float duration = 100.0;		 	// Simulation time
+	float duration = 200.0;		 	// Simulation time
 	float N = ceil(duration/T);   	// Simulation steps
 
 
@@ -33,7 +33,7 @@ int main()
 	b.setT(T);
 	b.setGoToK_heading(0.8);
 	b.setGoToK_pitch(0.4);
-	b.setReachRadius(1.0);
+	b.setReachRadius(2.0);
 	// etc. Estes parâmetros deviam ser lidos de um ficheiro de configuração, 
 	// para evitar estar a compilar código cada vez que se quer experimentar com um valor diferente...
 
@@ -46,7 +46,7 @@ int main()
 	Behaviour::Actuation act;
 	Controller::MotorCommand mCommand;
 	Behaviour::Goal goal;
-	goal << 20.0, 50.0, 10.0;
+	goal << 20.0, 10.0, 30.0;
 //	goal << 60.0, 00.0, -10.0;
 	// Mais uma vez, estes valores podiam ser lidos de um ficheiro de configuração.
 	

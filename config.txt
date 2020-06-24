@@ -1,0 +1,31 @@
+T 0.05
+duration 200.0
+
+logging 1
+logFilename BUV1_Sim.log
+
+goal 10.5 -20.0 30.0
+
+buoyancy 0.0
+seaCurr 0.0 0.0 0.0
+
+# Behaviour 
+goTo_K_roll 1.0
+goTo_K_pitch 0.4
+goTo_K_heading 0.8
+goTo_K_speed 1.0 
+cruiseSpeed 1.0
+reachSpeed 1.0
+reachRadius 2.0
+
+# Controller
+maxTailAmp 45.0
+maxTailDev 60.0
+maxTailFreq 3.0
+cruiseTailAmp 20.0
+maxSideAmp 45.0
+maxSideDev 60.0
+maxSideFreq 3.0
+cruiseSideAmp 20.0
+cruiseSideFreq 1.0
+

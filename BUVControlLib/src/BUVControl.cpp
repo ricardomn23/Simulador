@@ -14,8 +14,8 @@ Behaviour::Behaviour() :
 		goTo_K_roll(1.0),
 		goTo_K_pitch(1.0),
 		goTo_K_heading(1.0),
-		goTo_K_speed(1.0),
-		cruiseSpeed(1.0),
+		goTo_K_speed(2.0),
+		cruiseSpeed(1.5),
 		reachSpeed(1.0),
 		reachedR_squared(1.0)
 {}
@@ -47,7 +47,7 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	Float err_pitch = TRUNCATE_RAD(pitch_des - state(4));
 	// Proportional control:
 	act[1] = goTo_K_pitch * err_pitch;
-
+	
 	// heading control  (dHeading > 0 ---> counterclockwise movement)
 	Float heading_des = atan2(goal(1)-state(1),goal(0)-state(0));
 	Float err_heading = TRUNCATE_RAD(heading_des - state(5));
@@ -60,6 +60,7 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	// Proportional control:
 	act[3] =  goTo_K_speed * err_speed;
 	
+	
 	return act;
 }
 	
@@ -69,13 +70,17 @@ Behaviour::Actuation Behaviour::standStill(Goal const &goal, State const &state,
 }	
 
 Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DState const &dstate) {
-	cout << "Behaviour::follow: NOT IMPLEMENTED YET!" << endl;
-	return stop();
+	
+	return goToPoint (goal, state, dstate);
+	
 }	
 
 Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DState const &dstate) {
-	cout << "Behaviour::goToDepth: NOT IMPLEMENTED YET!" << endl;
-	return stop();
+	
+	Goal g;
+	g << state(0), state(1), depth; 
+	
+	return goToPoint (g, state, dstate);
 }
 
 
@@ -84,16 +89,15 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 // Constructor sets default values for variables
 Controller::Controller() :
 	maxTailAmp(45.0), //maximo valor de amplitude cauda
-	maxTailDev(80.0), //maximo valor de deflection cauda
+	maxTailDev(70.0), //maximo valor de deflection cauda
 	maxTailFreq(3.0), //maximo valor de frequencia da cauda
 	cruiseTailAmp(30.0), //valor standard de amplitude da cauda
 	maxSideAmp(45.0), //maximo valor de amplitude das barbatanas alterais
-	maxSideDev(80.0),
+	maxSideDev(60.0),
 	maxSideFreq(3.0),
-	cruiseSideAmp(30.0),
+	cruiseSideAmp(20.0),
 	cruiseSideFreq(1.0)
 {}
-
 
 Controller::MotorCommand Controller::control(Behaviour::Actuation act) {
 	MotorCommand mCommand;
@@ -151,6 +155,7 @@ void Controller::speedControl( Float dSpeed, MotorCommand &mCommand ) {
 	mCommand(0,0) = LIMIT(dSpeed,0.0,1.0) * maxTailFreq;
 }
 
+/* limitador apenas do angulo de amplitude
 std::tuple<Controller::Float, Controller::Float> Controller::physicalLimits( Float deflection, Float amp ) {
 	
 	Float infLimitFin = deflection - amp;
@@ -179,5 +184,37 @@ std::tuple<Controller::Float, Controller::Float> Controller::physicalLimits( Flo
 	
 	return std::make_tuple (deflection, amp);
 }
-
-
+*/
+//limitador de angulo de amplitude e deflection
+std::tuple<Controller::Float, Controller::Float> Controller::physicalLimits( Float deflection, Float amp ) {
+	
+	Float infLimitFin = deflection - amp;
+	
+	if (infLimitFin < -85.0){
+		
+		Float excess = infLimitFin + 85.0;
+		
+		Float newAmp = amp + excess/2;
+		
+		Float newDeflec = deflection - excess/2;
+		
+		return std::make_tuple (newDeflec, newAmp);
+		
+	}
+	
+	Float supLimitFin = deflection + amp;
+	
+	if (supLimitFin > 85.0){
+		
+		Float excess = supLimitFin - 85.0;
+		
+		Float newAmp = amp - excess/2;
+		
+		Float newDeflec = deflection - excess/2;
+		
+		return std::make_tuple (newDeflec, newAmp);
+		
+	}
+	
+	return std::make_tuple (deflection, amp);
+}

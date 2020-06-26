@@ -65,11 +65,11 @@ int main()
 	
 	// Mais uma vez, estes valores podiam ser lidos de um ficheiro de configuração.
 	
-	act = b.goToPoint(goal, buv.getState(), buv.getDState());
+	//act = b.goToPoint(goal, buv.getState(), buv.getDState());
 	//act = b.follow(target, buv.getState(), buv.getDState());
 	
 	float depth = -20.0;
-	//act = b.goToDepth(depth, buv.getState(), buv.getDState());
+	act = b.goToDepth(depth, buv.getState(), buv.getDState());
 	mCommand = c.control(act);
 	
 	std::ofstream logfile;
@@ -99,8 +99,8 @@ int main()
 		target(1) += 0.0;
 		target(2) += 0.0;
 		
-		act = b.goToPoint(buv.getState(), buv.getDState());
-		//act = b.goToDepth(depth, buv.getState(), buv.getDState());
+		//act = b.goToPoint(buv.getState(), buv.getDState());
+		act = b.goToDepth(depth, buv.getState(), buv.getDState());
 		//act = b.follow(target, buv.getState(), buv.getDState());
 		mCommand = c.control(act);
 	}

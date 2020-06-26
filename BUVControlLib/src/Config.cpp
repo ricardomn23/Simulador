@@ -49,9 +49,9 @@ bool Config::getBool(std::string const& name, bool defaultValue) {
 
 	if (ci == content.end()) 
 		return defaultValue;
-
-	assert(ci->second == "0" || ci->second == "1");
-  	return ci->second == "1";
+	int i = std::stoi(ci->second);
+	assert(i == 0  || i == 1);
+  	return i == 1;
 }
 
 Eigen::Vector3f Config::getVector3f(std::string const& name, Eigen::Vector3f defaultValue) {

@@ -79,8 +79,25 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 	
 	Goal g;
 	g << state(0), state(1), depth; 
+	goal = g;
 	
-	return goToPoint (g, state, dstate);
+	Float Kz = 1.0;
+	Float e_z = -(depth - state(2));
+	Float pitch_des = e_z * Kz;
+	pitch_des = LIMIT(pitch_des,-40.0,40.0) * M_PI/180;
+	
+	Float err_pitch = TRUNCATE_RAD(pitch_des - state(4));
+	Actuation act;
+	act[0] = act[2] = 0;
+	
+	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
+	Float err_speed = cruiseSpeed - curr_speed;
+	// Proportional control:
+	act[3] =  goTo_K_speed * err_speed;
+	
+	act[1] = goTo_K_pitch * err_pitch;
+	
+	return act;
 }
 
 

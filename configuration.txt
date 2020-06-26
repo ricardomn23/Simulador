@@ -5,6 +5,7 @@ logging 1
 logFilename BUV1_Sim.log
 
 goal 10.5 -20.0 30.0
+followTarget 15.0 10.0 5.0
 
 buoyancy 0.0
 seaCurr 0.0 0.0 0.0
@@ -28,4 +29,3 @@ maxSideDev 60.0
 maxSideFreq 3.0
 cruiseSideAmp 20.0
 cruiseSideFreq 1.0
-

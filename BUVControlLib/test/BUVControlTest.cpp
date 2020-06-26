@@ -15,7 +15,7 @@ int main()
 {
 	cout << "BUV3 Control Demo" << endl;
 
-	Config config("config.txt");
+	Config config("configuration.txt");
 
 
 	float T = config.getFloat("T", 0.05);					// Sampling time
@@ -24,7 +24,7 @@ int main()
 
 
 	// Simulator and simulator parameters
-	BUV1_Sim buv(T, config.getBool("logging", true));
+	BUV1_Sim buv(T, true); //possibilidade de mudar o nome do ficheiro criado com parametros diferentes
 	buv.setSeaCurr(config.getVector3f("seaCurr", Eigen::Vector3f(0.0,0.0,0.0)));
 	buv.setBuoyancy(config.getFloat("buoyancy", 0.0)); // Flutuabilidade neutra
 
@@ -59,17 +59,17 @@ int main()
 	
 	Behaviour::Goal goal = config.getVector3f("goal", Eigen::Vector3f(0.0,0.0,0.0));
 	
-	Behaviour::Goal target;
-	target << 15.0, 10.0, 5.0;
-	
+	//Behaviour::Goal target;
+	//target << 15.0, 10.0, 5.0;
+	Behaviour::Goal target = config.getVector3f("followTarget", Eigen::Vector3f(0.0,0.0,0.0));
 	
 	// Mais uma vez, estes valores podiam ser lidos de um ficheiro de configuração.
 	
 	//act = b.goToPoint(goal, buv.getState(), buv.getDState());
-	//act = b.follow(target, buv.getState(), buv.getDState());
+	act = b.follow(target, buv.getState(), buv.getDState());
 	
-	float depth = -20.0;
-	act = b.goToDepth(depth, buv.getState(), buv.getDState());
+	float depth = config.getFloat("goToDepth", -10.0); //seleção da profundidade pretendida
+	//act = b.goToDepth(depth, buv.getState(), buv.getDState());
 	mCommand = c.control(act);
 	
 	std::ofstream logfile;
@@ -100,8 +100,8 @@ int main()
 		target(2) += 0.0;
 		
 		//act = b.goToPoint(buv.getState(), buv.getDState());
-		act = b.goToDepth(depth, buv.getState(), buv.getDState());
-		//act = b.follow(target, buv.getState(), buv.getDState());
+		//act = b.goToDepth(depth, buv.getState(), buv.getDState());
+		act = b.follow(target, buv.getState(), buv.getDState());
 		mCommand = c.control(act);
 	}
 	

@@ -63,13 +63,28 @@ int main()
 	//target << 15.0, 10.0, 5.0;
 	Behaviour::Goal target = config.getVector3f("followTarget", Eigen::Vector3f(0.0,0.0,0.0));
 	
-	// Mais uma vez, estes valores podiam ser lidos de um ficheiro de configuração.
-	
-	//act = b.goToPoint(goal, buv.getState(), buv.getDState());
-	act = b.follow(target, buv.getState(), buv.getDState());
-	
 	float depth = config.getFloat("goToDepth", -10.0); //seleção da profundidade pretendida
-	//act = b.goToDepth(depth, buv.getState(), buv.getDState());
+	
+	int runnigMethod = (int) config.getFloat("runnigMethod", 1.0);
+	
+	switch (runnigMethod){
+			
+		case 1 :
+			act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
+			break;
+		
+		case 2 :
+			act = b.follow(target, buv.getState(), buv.getDState()); //função de veículo seguir outro veículo
+			break;
+			
+		case 3 :
+			act = b.goToDepth(depth, buv.getState(), buv.getDState()); //controlador de profundidade
+			break;
+			
+		default :
+			act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
+	}
+		
 	mCommand = c.control(act);
 	
 	std::ofstream logfile;
@@ -99,9 +114,24 @@ int main()
 		target(1) += 0.0;
 		target(2) += 0.0;
 		
-		//act = b.goToPoint(buv.getState(), buv.getDState());
-		//act = b.goToDepth(depth, buv.getState(), buv.getDState());
-		act = b.follow(target, buv.getState(), buv.getDState());
+		switch (runnigMethod){
+			
+			case 1 :
+				act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
+				break;
+			
+			case 2 :
+				act = b.follow(target, buv.getState(), buv.getDState()); //função de veículo seguir outro veículo
+				break;
+				
+			case 3 :
+				act = b.goToDepth(depth, buv.getState(), buv.getDState()); //controlador de profundidade
+				break;
+				
+			default :
+				act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
+		}
+		
 		mCommand = c.control(act);
 	}
 	

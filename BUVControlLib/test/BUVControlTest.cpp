@@ -24,7 +24,7 @@ int main()
 
 
 	// Simulator and simulator parameters
-	BUV1_Sim buv(T, true); //possibilidade de mudar o nome do ficheiro criado com parametros diferentes
+	BUV1_Sim buv(T, config.getString("logFilename", "BUV1_Sim.log")); //possibilidade de mudar o nome do ficheiro criado com parametros diferentes
 	buv.setSeaCurr(config.getVector3f("seaCurr", Eigen::Vector3f(0.0,0.0,0.0)));
 	buv.setBuoyancy(config.getFloat("buoyancy", 0.0)); // Flutuabilidade neutra
 
@@ -66,7 +66,7 @@ int main()
 	float depth = config.getFloat("goToDepth", -10.0); //seleção da profundidade pretendida
 	
 	int runnigMethod = (int) config.getFloat("runnigMethod", 1.0);
-	
+	/*
 	switch (runnigMethod){
 			
 		case 1 :
@@ -86,7 +86,7 @@ int main()
 	}
 		
 	mCommand = c.control(act);
-	
+	*/
 	std::ofstream logfile;
 	
 	std::string savefile = "target.log";
@@ -99,22 +99,8 @@ int main()
 	
 	for(int i=0; i<N; i++)
 	{
-		logfile << target.transpose() << endl;
-		// Simulate
-		buv.setMotorCommands(mCommand);
-		buv.update();
-		// cout << "State:  " << buv.getState().transpose() << endl;
-		// cout << "DState: " << buv.getDState().transpose() << endl;
-
-		// Control
-		if( b.hasReachedPoint( buv.getState()) )
-			break;
 		
-		target(0) += 0.2;
-		target(1) += 0.0;
-		target(2) += 0.0;
-		
-		switch (runnigMethod){
+		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			
 			case 1 :
 				act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
@@ -133,6 +119,22 @@ int main()
 		}
 		
 		mCommand = c.control(act);
+		
+		logfile << target.transpose() << endl;
+		// Simulate
+		buv.setMotorCommands(mCommand);
+		buv.update();
+		// cout << "State:  " << buv.getState().transpose() << endl;
+		// cout << "DState: " << buv.getDState().transpose() << endl;
+
+		// Control
+		if( b.hasReachedPoint( buv.getState()) )
+			break;
+		
+		target(0) += 0.2;
+		target(1) += 0.0;
+		target(2) += 0.0;
+		
 	}
 	
 	logfile.close();

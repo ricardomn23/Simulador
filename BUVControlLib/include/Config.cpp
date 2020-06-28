@@ -16,9 +16,10 @@ Config::Config(std::string const& filename) {
 		if (! line.length()) continue; //ignorar linhas vazias
 
 		if (line[0] == '#') continue; //definir quando é usado # é comantario e é ignorada
-		
+
 		if (line[line.length()-1] == '\r') {
 			line = line.substr(0, line.length()-1);
+			cout<<"line "<<line<<endl;
 		}
 
 		posSpace = line.find(' '); // improve to allow any type of space including \t ? definir que depois do espaço vem o valor da variavel 

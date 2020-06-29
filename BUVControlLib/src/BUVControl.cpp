@@ -12,12 +12,21 @@ using namespace Eigen;
 Behaviour::Behaviour() :
 		T(0.1),
 		goTo_K_roll(1.0),
-		goTo_K_pitch(1.0),
+		goTo_K_pitch(0.0),
+		goTo_Ki_pitch(0.0),
+		goTo_Kd_pitch(1.0),
+		integral_pitchT(0.0),
+		err_pitchLast(0.0),
 		goTo_K_heading(1.0),
+		goTo_Ki_heading(0.2),
+		goTo_Kd_heading(0.05),
+		integral_headingT(0.0),
+		err_headingLast(0.0),
 		goTo_K_speed(2.0),
 		cruiseSpeed(1.5),
 		reachSpeed(1.0),
-		reachedR_squared(1.0)
+		reachedR_squared(1.0)		
+		
 {}
 
 Behaviour::Actuation Behaviour::stop() {
@@ -45,14 +54,24 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	Float d_xy = sqrt(SQR(goal(1)-state(1)) + SQR(goal(0)-state(0)));
 	Float pitch_des = atan2( -(goal(2)-state(2)), d_xy);
 	Float err_pitch = TRUNCATE_RAD(pitch_des - state(4));
+	Float integral_pitch = integral_pitchT + err_pitch * T;
+	integral_pitchT = integral_pitch;
 	// Proportional control:
-	act[1] = goTo_K_pitch * err_pitch;
+	//act[1] = goTo_K_pitch * err_pitch;
+	act[1] =  goTo_K_pitch * err_pitch + (err_pitch - err_pitchLast) / T * goTo_Kd_pitch + goTo_Ki_pitch * integral_pitch;
+	err_pitchLast = err_pitch;
 	
 	// heading control  (dHeading > 0 ---> counterclockwise movement)
 	Float heading_des = atan2(goal(1)-state(1),goal(0)-state(0));
 	Float err_heading = TRUNCATE_RAD(heading_des - state(5));
+	Float integral = integral_headingT + err_heading * T; 
+	integral_headingT = integral;
 	// Proportional control:
-	act[2] =  goTo_K_heading * err_heading;
+	//act[2] =  goTo_K_heading * err_heading;
+	//act[2] =  goTo_K_heading * err_heading + goTo_Ki_heading * integral;
+	//act[2] =  goTo_K_heading * err_heading + (err_heading - err_headingLast) / T * goTo_Kd_heading;
+	act[2] =  goTo_K_heading * err_heading + (err_heading - err_headingLast) / T * goTo_Kd_heading + goTo_Ki_heading * integral;
+	err_headingLast = err_heading;
 
 	// speed control (using only cruise speed for now...)
 	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
@@ -87,7 +106,16 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 	pitch_des = LIMIT(pitch_des,-40.0,40.0) * M_PI/180;
 	
 	Float err_pitch = TRUNCATE_RAD(pitch_des - state(4));
+	
+	Float integral_pitch = integral_pitchT + err_pitch * T;
+	integral_pitchT = integral_pitch;
 	Actuation act;
+	act[1] =  goTo_K_pitch * err_pitch + (err_pitch - err_pitchLast) / T * goTo_Kd_pitch + goTo_Ki_pitch * integral_pitch;
+	err_pitchLast = err_pitch;
+	
+	//act[1] =  goTo_K_pitch * err_pitch;
+	
+	
 	act[0] = act[2] = 0;
 	
 	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
@@ -95,7 +123,6 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 	// Proportional control:
 	act[3] =  goTo_K_speed * err_speed;
 	
-	act[1] = goTo_K_pitch * err_pitch;
 	
 	return act;
 }

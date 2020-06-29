@@ -1,5 +1,5 @@
 function check_distance()
-	final_point = [30 20 10];
+	final_point = [10 15 20];
     
     data = load("BUV1_Sim.log");
     

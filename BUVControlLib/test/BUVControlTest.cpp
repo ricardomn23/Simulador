@@ -40,6 +40,10 @@ int main()
 	b.setGoToK_speed(config.getFloat("goTo_K_speed", 1.0));
 	b.setCruiseSpeed(config.getFloat("cruiseSpeed", 1.0));
 	b.setReachSpeed(config.getFloat("reachSpeed", 1.0));
+	b.setGoToKi_heading(config.getFloat("goTo_Ki_heading", 0.1));
+	b.setGoToKd_heading(config.getFloat("goTo_Kd_heading", 0.1));
+	b.setGoToKi_pitch(config.getFloat("goTo_Ki_pitch", 0.1));
+	b.setGoToKd_pitch(config.getFloat("goTo_Kd_pitch", 0.1));
 	
 
 	Controller c;

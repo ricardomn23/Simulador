@@ -43,6 +43,14 @@ class Behaviour {
 			reachSpeed = v; }
 		void setReachRadius(Float r) {
 			reachedR_squared = SQR(r); }
+		void setGoToKi_heading(Float Ki) {
+			goTo_Ki_heading = Ki; }
+		void setGoToKd_heading(Float Kd) {
+			goTo_Kd_heading = Kd; }
+		void setGoToKd_pitch(Float Kd) {
+			goTo_Kd_pitch = Kd; }
+		void setGoToKi_pitch(Float Kd) {
+			goTo_Kd_pitch = Kd; }
 		
 		// Behaviours
 		Actuation stop();
@@ -59,11 +67,20 @@ class Behaviour {
 		Float T;
 		Float goTo_K_roll;
 		Float goTo_K_pitch;
+		Float goTo_Ki_pitch;
+		Float goTo_Kd_pitch;
+		Float integral_pitchT;
 		Float goTo_K_heading;
+		Float goTo_Ki_heading;
+		Float goTo_Kd_heading;
+		Float integral_headingT;
 		Float goTo_K_speed;
 		Float cruiseSpeed;
 		Float reachSpeed;
 		Float reachedR_squared;
+		Float err_headingLast;
+		Float err_pitchLast;
+		
 		
 		Goal goal;
 };

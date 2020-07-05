@@ -23,9 +23,13 @@ Behaviour::Behaviour() :
 		integral_headingT(0.0),
 		err_headingLast(0.0),
 		goTo_K_speed(2.0),
-		cruiseSpeed(1.5),
+		cruiseSpeed(1.0),
 		reachSpeed(1.0),
-		reachedR_squared(1.0)		
+		reachedR_squared(1.0),
+		err_speedLast(0.0),
+		goTo_Kd_speed(4.0),
+		goTo_Ki_speed(0.01),
+		integral_speedT(0.0)
 		
 {}
 
@@ -68,8 +72,6 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	integral_headingT = integral;
 	// Proportional control:
 	//act[2] =  goTo_K_heading * err_heading;
-	//act[2] =  goTo_K_heading * err_heading + goTo_Ki_heading * integral;
-	//act[2] =  goTo_K_heading * err_heading + (err_heading - err_headingLast) / T * goTo_Kd_heading;
 	act[2] =  goTo_K_heading * err_heading + (err_heading - err_headingLast) / T * goTo_Kd_heading + goTo_Ki_heading * integral;
 	err_headingLast = err_heading;
 
@@ -77,7 +79,12 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
 	Float err_speed = cruiseSpeed - curr_speed;
 	// Proportional control:
-	act[3] =  goTo_K_speed * err_speed;
+	//act[3] =  goTo_K_speed * err_speed;
+	//controlador PID
+	Float integral_speed = integral_speedT + err_speed * T;
+	integral_speedT = integral_speed;
+	act[3] =  goTo_K_speed * err_speed + (err_speed - err_speedLast) / T * goTo_Kd_speed + goTo_Ki_speed * integral_speed;
+	err_speedLast = err_speed;
 	
 	
 	return act;
@@ -90,7 +97,33 @@ Behaviour::Actuation Behaviour::standStill(Goal const &goal, State const &state,
 
 Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DState const &dstate) {
 	
-	return goToPoint (goal, state, dstate);
+	Actuation act = goToPoint (goal, state, dstate);
+	
+	// speed control (using only cruise speed for now...)
+	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
+	Float distance = (goal-state.head<3>()).squaredNorm();
+	Float err_speed;
+	
+	if (distance > 5.0){
+		
+		err_speed = cruiseSpeed - curr_speed;
+		
+	}
+	else{
+		
+		err_speed = 0.5 - curr_speed;
+		
+	}
+	
+	// Proportional control:
+	//act[3] =  goTo_K_speed * err_speed;
+	//controlador PID
+	Float integral_speed = integral_speedT + err_speed * T;
+	integral_speedT = integral_speed;
+	act[3] =  goTo_K_speed * err_speed + (err_speed - err_speedLast) / T * goTo_Kd_speed + goTo_Ki_speed * integral_speed;
+	err_speedLast = err_speed;
+
+	return act;
 	
 }	
 
@@ -132,10 +165,10 @@ Behaviour::Actuation Behaviour::goToDepth(Float depth, State const &state, DStat
 
 // Constructor sets default values for variables
 Controller::Controller() :
-	maxTailAmp(45.0), //maximo valor de amplitude cauda
-	maxTailDev(70.0), //maximo valor de deflection cauda
+	maxTailAmp(90.0), //maximo valor de amplitude cauda
+	maxTailDev(90.0), //maximo valor de deflection cauda
 	maxTailFreq(3.0), //maximo valor de frequencia da cauda
-	cruiseTailAmp(30.0), //valor standard de amplitude da cauda
+	cruiseTailAmp(90.0), //valor standard de amplitude da cauda
 	maxSideAmp(45.0), //maximo valor de amplitude das barbatanas alterais
 	maxSideDev(60.0),
 	maxSideFreq(3.0),
@@ -198,8 +231,8 @@ void Controller::speedControl( Float dSpeed, MotorCommand &mCommand ) {
 	mCommand(2,0) = cruiseTailAmp;
 	mCommand(0,0) = LIMIT(dSpeed,0.0,1.0) * maxTailFreq;
 }
-
-/* limitador apenas do angulo de amplitude
+/*
+//limitador apenas do angulo de amplitude
 std::tuple<Controller::Float, Controller::Float> Controller::physicalLimits( Float deflection, Float amp ) {
 	
 	Float infLimitFin = deflection - amp;

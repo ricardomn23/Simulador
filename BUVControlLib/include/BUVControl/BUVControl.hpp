@@ -49,8 +49,13 @@ class Behaviour {
 			goTo_Kd_heading = Kd; }
 		void setGoToKd_pitch(Float Kd) {
 			goTo_Kd_pitch = Kd; }
-		void setGoToKi_pitch(Float Kd) {
-			goTo_Kd_pitch = Kd; }
+		void setGoToKi_pitch(Float Ki) {
+			goTo_Ki_pitch = Ki; }
+		void setGoToKd_speed(Float Kd) {
+			goTo_Kd_speed = Kd; }
+		void setGoToKi_speed(Float Ki) {
+			goTo_Ki_speed = Ki; }
+		
 		
 		// Behaviours
 		Actuation stop();
@@ -75,11 +80,15 @@ class Behaviour {
 		Float goTo_Kd_heading;
 		Float integral_headingT;
 		Float goTo_K_speed;
+		Float goTo_Kd_speed;
+		Float goTo_Ki_speed;
 		Float cruiseSpeed;
 		Float reachSpeed;
 		Float reachedR_squared;
 		Float err_headingLast;
 		Float err_pitchLast;
+		Float err_speedLast;
+		Float integral_speedT;
 		
 		
 		Goal goal;

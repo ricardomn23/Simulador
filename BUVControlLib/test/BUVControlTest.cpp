@@ -44,6 +44,8 @@ int main()
 	b.setGoToKd_heading(config.getFloat("goTo_Kd_heading", 0.1));
 	b.setGoToKi_pitch(config.getFloat("goTo_Ki_pitch", 0.1));
 	b.setGoToKd_pitch(config.getFloat("goTo_Kd_pitch", 0.1));
+	b.setGoToKd_speed(config.getFloat("goTo_Kd_speed", 0.1));
+	b.setGoToKi_speed(config.getFloat("goTo_Ki_speed", 0.1));
 	
 
 	Controller c;
@@ -70,27 +72,7 @@ int main()
 	float depth = config.getFloat("goToDepth", -10.0); //seleção da profundidade pretendida
 	
 	int runnigMethod = (int) config.getFloat("runnigMethod", 1.0);
-	/*
-	switch (runnigMethod){
-			
-		case 1 :
-			act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
-			break;
-		
-		case 2 :
-			act = b.follow(target, buv.getState(), buv.getDState()); //função de veículo seguir outro veículo
-			break;
-			
-		case 3 :
-			act = b.goToDepth(depth, buv.getState(), buv.getDState()); //controlador de profundidade
-			break;
-			
-		default :
-			act = b.goToPoint(goal, buv.getState(), buv.getDState()); // veículo ir para um ponto dado 
-	}
-		
-	mCommand = c.control(act);
-	*/
+	
 	std::ofstream logfile;
 	
 	std::string savefile = "target.log";
@@ -100,9 +82,18 @@ int main()
 		cout << " could not open \"" << savefile << "\" for logging!" << endl;
 		return false;
 	}
+
+	std::function<float(float)> xTargetFunction = config.getFunction("xTargetFunction", 0.0);
+	std::function<float(float)> yTargetFunction = config.getFunction("yTargetFunction", 0.0);
+	std::function<float(float)> zTargetFunction = config.getFunction("zTargetFunction", 0.0);
+	
+	float t = 0.0;
 	
 	for(int i=0; i<N; i++)
 	{
+		target (0) = xTargetFunction(t);
+		target (1) = yTargetFunction(t);
+		target (2) = zTargetFunction(t);
 		
 		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			
@@ -135,9 +126,8 @@ int main()
 		if( b.hasReachedPoint( buv.getState()) )
 			break;
 		
-		target(0) += 0.2;
-		target(1) += 0.0;
-		target(2) += 0.0;
+		t += T;
+		
 		
 	}
 	

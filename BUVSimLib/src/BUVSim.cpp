@@ -3,7 +3,7 @@
 #include "BUVSim/BUVSim.hpp"
 
 
-#define MIMIC_PIOTR_SIM
+#define MIMIC_PIOTR_SIM //atrito das barbatanas laterais
 
 using namespace std;
 

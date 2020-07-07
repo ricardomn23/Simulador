@@ -29,7 +29,8 @@ Behaviour::Behaviour() :
 		err_speedLast(0.0),
 		goTo_Kd_speed(4.0),
 		goTo_Ki_speed(0.01),
-		integral_speedT(0.0)
+		integral_speedT(0.0),
+		lastDistance(0.0)
 		
 {}
 
@@ -95,7 +96,7 @@ Behaviour::Actuation Behaviour::standStill(Goal const &goal, State const &state,
 	return stop();
 }	
 
-Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DState const &dstate) {
+Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DState const &dstate, Float targetV) {
 	
 	Actuation act = goToPoint (goal, state, dstate);
 	
@@ -104,17 +105,22 @@ Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DSt
 	Float distance = (goal-state.head<3>()).squaredNorm();
 	Float err_speed;
 	
-	if (distance > 5.0){
+	
+	
+	if (distance > 10.0){
 		
 		err_speed = cruiseSpeed - curr_speed;
 		
 	}
 	else{
 		
-		err_speed = 0.5 - curr_speed;
+		
+		err_speed = targetV - curr_speed;
 		
 	}
+
 	
+	lastDistance = distance;
 	// Proportional control:
 	//act[3] =  goTo_K_speed * err_speed;
 	//controlador PID
@@ -122,7 +128,7 @@ Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DSt
 	integral_speedT = integral_speed;
 	act[3] =  goTo_K_speed * err_speed + (err_speed - err_speedLast) / T * goTo_Kd_speed + goTo_Ki_speed * integral_speed;
 	err_speedLast = err_speed;
-
+	
 	return act;
 	
 }	

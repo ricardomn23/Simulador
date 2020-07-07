@@ -74,34 +74,3 @@ Eigen::Vector3f Config::getVector3f(std::string const& name, Eigen::Vector3f def
 	v << e1, e2, e3;
 	return v;
 }
-
-std::function<float(float)> Config::getFunction(std::string const& name, float defaultValue) {
-	std::map<std::string,std::string>::const_iterator ci = content.find(name);
-
-	if (ci == content.end()) 
-		return createFunction("", name.substr(0,1), defaultValue);
-
-	return createFunction(ci->second, name.substr(0,1), defaultValue);
-}
-
-std::function<float(float)> Config::createFunction(std::string const& functionName, std::string const& axis, float defaultValue) {
-	if (functionName == "constant") {
-		float c = getFloat(axis+"Const", defaultValue);
-		return [c](float t) { return c; };
-	} else if (functionName == "proportional") {
-		float a = getFloat(axis+"A", defaultValue);
-		return [a](float t) { return a * t; };
-	} else if (functionName == "sin") {
-		float b = getFloat(axis+"B", defaultValue);
-		float w = getFloat(axis+"w", defaultValue);
-		float c = getFloat(axis+"C", defaultValue);
-		return [b,w,c](float t) { return b * sin(w * t) + c; };
-	} else if (functionName == "cos") {
-		float b = getFloat(axis+"B", defaultValue);
-		float w = getFloat(axis+"w", defaultValue);
-		float c = getFloat(axis+"C", defaultValue);
-		return [b,w,c](float t) { return b * cos(w * t) + c; };
-	} else { //default -> constant with defaultValue
-		return [defaultValue](float t) { return defaultValue; };
-	}
-}

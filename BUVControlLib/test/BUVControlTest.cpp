@@ -5,11 +5,58 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <functional>
 
 using namespace std;
 using namespace Eigen;
 
 
+/**** AUXILIARY FUNCTIONS ******/
+
+std::tuple<std::function<float(float)>, std::function<float(float)>> createFunction(Config &config, std::string const& functionName, std::string const& axis, float defaultValue) {
+	if (functionName == "constant") {
+		float c = config.getFloat(axis+"Const", defaultValue);
+		std::function<float(float)> f = [c](float t) { return c; };
+		std::function<float(float)> df = [](float t) { return 0.0; };
+		return std::make_tuple (f, df);
+	} else if (functionName == "proportional") {
+		float a = config.getFloat(axis+"A", defaultValue);
+		float c = config.getFloat(axis+"C", defaultValue);
+		std::function<float(float)> f = [a,c](float t) { return a * t + c; };
+		std::function<float(float)> df = [a](float t) { return a; };
+		return std::make_tuple (f, df);
+	} else if (functionName == "sin") {
+		float b = config.getFloat(axis+"B", defaultValue);
+		float w = config.getFloat(axis+"w", defaultValue);
+		float c = config.getFloat(axis+"C", defaultValue);
+		std::function<float(float)> f = [b,w,c](float t) { return b * sin(w * t) + c; };
+		std::function<float(float)> df = [b, w](float t) { return b*w*cos(w*t); };
+		return std::make_tuple (f, df);
+	} else if (functionName == "cos") {
+		float b = config.getFloat(axis+"B", defaultValue);
+		float w = config.getFloat(axis+"w", defaultValue);
+		float c = config.getFloat(axis+"C", defaultValue);
+		std::function<float(float)> f = [b,w,c](float t) { return b * cos(w * t) + c; };
+		std::function<float(float)> df = [b, w](float t) { return -b*w*sin(w*t); };
+		return std::make_tuple (f, df);
+	} else { //default -> constant with defaultValue
+		std::function<float(float)> f = [defaultValue](float t) { return defaultValue; };
+		std::function<float(float)> df = [](float t) { return 0.0; };
+		return std::make_tuple (f, df);
+	}
+	
+}
+
+std::tuple<std::function<float(float)>, std::function<float(float)>> getFunction(Config &config, std::string const& name, float defaultValue) {
+	
+	cout<<"parametro "<<config.getString("logFilename", "BUV1.log")<<endl;
+	cout<<"parametro "<<config.getFloat("yB", defaultValue)<<endl;
+	cout<<"configGetS "<<config.getString(name, "")<<endl;
+	cout<<"name "<<name<<endl;
+	
+	return createFunction(config, config.getString(name, ""), name.substr(0,1), defaultValue);
+}
 
 int main()
 {
@@ -46,6 +93,7 @@ int main()
 	b.setGoToKd_pitch(config.getFloat("goTo_Kd_pitch", 0.1));
 	b.setGoToKd_speed(config.getFloat("goTo_Kd_speed", 0.1));
 	b.setGoToKi_speed(config.getFloat("goTo_Ki_speed", 0.1));
+	b.setMinSpeed(config.getFloat("minSpeed", 0.4));
 	
 
 	Controller c;
@@ -82,10 +130,22 @@ int main()
 		cout << " could not open \"" << savefile << "\" for logging!" << endl;
 		return false;
 	}
+	
+	std::tuple<std::function<float(float)>, std::function<float(float)>> xFunctions = getFunction(config, "xTargetFunction", 0.0);
+	std::function<float(float)> xTargetFunction = std::get<0>(xFunctions);
+	std::function<float(float)> xDTargetFunction = std::get<1>(xFunctions);
+	std::tuple<std::function<float(float)>, std::function<float(float)>> yFunctions = getFunction(config, "yTargetFunction", 0.0);
+	std::function<float(float)> yTargetFunction = std::get<0>(yFunctions);
+	std::function<float(float)> yDTargetFunction = std::get<1>(yFunctions);
+	std::tuple<std::function<float(float)>, std::function<float(float)>> zFunctions = getFunction(config, "zTargetFunction", 0.0);
+	std::function<float(float)> zTargetFunction = std::get<0>(zFunctions);
+	std::function<float(float)> zDTargetFunction = std::get<1>(zFunctions);
+	
+	float vx = xDTargetFunction (duration) - xDTargetFunction (0.0);
+	float vy = yDTargetFunction (duration) - yDTargetFunction (0.0);
+	float vz = zDTargetFunction (duration) - zDTargetFunction (0.0);
+	float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
 
-	std::function<float(float)> xTargetFunction = config.getFunction("xTargetFunction", 0.0);
-	std::function<float(float)> yTargetFunction = config.getFunction("yTargetFunction", 0.0);
-	std::function<float(float)> zTargetFunction = config.getFunction("zTargetFunction", 0.0);
 	
 	float t = 0.0;
 	
@@ -95,6 +155,7 @@ int main()
 		target (1) = yTargetFunction(t);
 		target (2) = zTargetFunction(t);
 		
+		
 		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			
 			case 1 :
@@ -102,7 +163,7 @@ int main()
 				break;
 			
 			case 2 :
-				act = b.follow(target, buv.getState(), buv.getDState()); //função de veículo seguir outro veículo
+				act = b.follow(target, buv.getState(), buv.getDState(), targetV); //função de veículo seguir outro veículo
 				break;
 				
 			case 3 :

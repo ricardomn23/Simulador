@@ -1,5 +1,5 @@
 T 0.05
-duration 400.0
+duration 800.0
 
 logging 1
 logFilename BUV1_Sim.log
@@ -9,7 +9,7 @@ runnigMethod 2 #Follow
 #runnigMethod 3 #GoToDepht
 
 goal 50.0 40.0 30.0
-followTarget 5.0 5.0 5.0
+followTarget 10.0 5.0 5.0
 goToDepth -40
 
 buoyancy 0.0
@@ -17,18 +17,19 @@ seaCurr 0.0 0.0 0.0
 
 # Behaviour 
 goTo_K_roll 1.0
-goTo_K_pitch 0.4
+goTo_K_pitch 0.9
 goTo_Ki_pitch 0.0
-goTo_Kd_pitch 2.0
+goTo_Kd_pitch 10.0
 goTo_K_heading 0.8
 goTo_Ki_heading 0.0
-goTo_Kd_heading 2.0
+goTo_Kd_heading 6.0
 goTo_K_speed 3.0 
 goTo_Kd_speed 0.0
 goTo_Ki_speed 0.8
-cruiseSpeed 0.6
-reachSpeed 0.6
-reachRadius 2.0
+minSpeed 0.5
+cruiseSpeed 1.0
+reachSpeed 1.0
+reachRadius 1.0
 
 # Controller
 maxTailAmp 90.0
@@ -42,7 +43,8 @@ cruiseSideAmp 20.0
 cruiseSideFreq 1.0
 
 xTargetFunction proportional
-xA 0.5
+xA 1.0
+xC 0.0
 
 yTargetFunction sin
 yB 5.0

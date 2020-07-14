@@ -109,14 +109,16 @@ Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DSt
 	
 	if (distance > 10.0){
 		
-		err_speed = cruiseSpeed - curr_speed;
+		err_speed = targetV - curr_speed;
 		
 	}
 	else{
 		
 		
-		err_speed = targetV - curr_speed;
+		err_speed = (targetV)*0.5 - curr_speed;
 		
+		//cout<<"targetVF "<<targetV<<endl;
+		//cout<<"curr_speed "<<curr_speed<<endl;
 	}
 
 	
@@ -128,6 +130,8 @@ Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DSt
 	integral_speedT = integral_speed;
 	act[3] =  goTo_K_speed * err_speed + (err_speed - err_speedLast) / T * goTo_Kd_speed + goTo_Ki_speed * integral_speed;
 	err_speedLast = err_speed;
+	
+	//cout<<"act3 "<<act[3]<<endl;
 	
 	return act;
 	

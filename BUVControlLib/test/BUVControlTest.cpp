@@ -50,11 +50,6 @@ std::tuple<std::function<float(float)>, std::function<float(float)>> createFunct
 
 std::tuple<std::function<float(float)>, std::function<float(float)>> getFunction(Config &config, std::string const& name, float defaultValue) {
 	
-	cout<<"parametro "<<config.getString("logFilename", "BUV1.log")<<endl;
-	cout<<"parametro "<<config.getFloat("yB", defaultValue)<<endl;
-	cout<<"configGetS "<<config.getString(name, "")<<endl;
-	cout<<"name "<<name<<endl;
-	
 	return createFunction(config, config.getString(name, ""), name.substr(0,1), defaultValue);
 }
 
@@ -140,12 +135,14 @@ int main()
 	std::tuple<std::function<float(float)>, std::function<float(float)>> zFunctions = getFunction(config, "zTargetFunction", 0.0);
 	std::function<float(float)> zTargetFunction = std::get<0>(zFunctions);
 	std::function<float(float)> zDTargetFunction = std::get<1>(zFunctions);
-	
+	/*
 	float vx = xDTargetFunction (duration) - xDTargetFunction (0.0);
 	float vy = yDTargetFunction (duration) - yDTargetFunction (0.0);
 	float vz = zDTargetFunction (duration) - zDTargetFunction (0.0);
 	float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
-
+	
+	cout<<"targetV "<<targetV<<endl;
+	*/
 	
 	float t = 0.0;
 	
@@ -155,6 +152,12 @@ int main()
 		target (1) = yTargetFunction(t);
 		target (2) = zTargetFunction(t);
 		
+		float vx = xDTargetFunction (t);
+		float vy = yDTargetFunction (t);
+		float vz = zDTargetFunction (t);
+		float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
+		
+		cout<<"targetV "<<targetV<<endl;
 		
 		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			

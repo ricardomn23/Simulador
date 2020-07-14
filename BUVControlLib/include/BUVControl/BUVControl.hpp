@@ -55,8 +55,7 @@ class Behaviour {
 			goTo_Kd_speed = Kd; }
 		void setGoToKi_speed(Float Ki) {
 			goTo_Ki_speed = Ki; }
-		void setMinSpeed(Float ms) {
-			minSpeed = ms; }
+		
 		
 		
 		// Behaviours
@@ -66,6 +65,8 @@ class Behaviour {
 		Actuation standStill(Goal const &goal, State const &state, DState const &dstate);
 		Actuation follow(Goal const &goal, State const &state, DState const &dstate, Float targetV);
 		Actuation goToDepth(Float depth, State const &state, DState const &dstate);
+		Actuation principalAxis(State const &state, DState const &dstate);
+		
 		
 		bool hasReachedPoint(State const &state) {
 			return (goal-state.head<3>()).squaredNorm() < reachedR_squared; }
@@ -92,7 +93,7 @@ class Behaviour {
 		Float err_speedLast;
 		Float integral_speedT;
 		Float lastDistance;
-		Float minSpeed;
+		
 		
 		
 		Goal goal;

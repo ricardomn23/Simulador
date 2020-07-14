@@ -26,8 +26,7 @@ goTo_Kd_heading 6.0
 goTo_K_speed 0.8
 goTo_Kd_speed 0.7
 goTo_Ki_speed 0.25
-minSpeed 0.2
-cruiseSpeed 1.1
+cruiseSpeed 0.6
 reachSpeed 1.0
 reachRadius 0.0
 
@@ -43,12 +42,12 @@ cruiseSideAmp 20.0
 cruiseSideFreq 1.0
 
 xTargetFunction proportional
-xA 0.8
+xA 1.0
 xC 0.0
 
-yTargetFunction cos
+yTargetFunction sin
 yB 5.0
-yw 0.07
+yw 0.02
 yC 10.0
 
 zTargetFunction constant

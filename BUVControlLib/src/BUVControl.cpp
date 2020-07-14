@@ -47,7 +47,8 @@ Behaviour::Actuation Behaviour::goToPoint(Goal const &g, State const &state, DSt
 	return goToPoint(state, dstate);
 }	
 
-Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dstate) {
+Behaviour::Actuation Behaviour::principalAxis(State const &state, DState const &dstate) {
+	
 	Actuation act;
 
 	// roll control: assuming roll_des = 0.0!
@@ -75,6 +76,13 @@ Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dsta
 	//act[2] =  goTo_K_heading * err_heading;
 	act[2] =  goTo_K_heading * err_heading + (err_heading - err_headingLast) / T * goTo_Kd_heading + goTo_Ki_heading * integral;
 	err_headingLast = err_heading;
+	
+	return act;
+}
+
+Behaviour::Actuation Behaviour::goToPoint(State const &state, DState const &dstate) {
+	Actuation act = principalAxis (state, dstate);
+	
 
 	// speed control (using only cruise speed for now...)
 	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
@@ -96,26 +104,33 @@ Behaviour::Actuation Behaviour::standStill(Goal const &goal, State const &state,
 	return stop();
 }	
 
-Behaviour::Actuation Behaviour::follow(Goal const &goal, State const &state, DState const &dstate, Float targetV) {
+Behaviour::Actuation Behaviour::follow(Goal const &g, State const &state, DState const &dstate, Float targetV) {
+	goal = g;
 	
-	Actuation act = goToPoint (goal, state, dstate);
+	Actuation act = principalAxis (state, dstate);
+	
 	
 	// speed control (using only cruise speed for now...)
 	Float curr_speed = sqrt(SQR(dstate(0)) + SQR(dstate(1)) + SQR(dstate(2)));
-	Float distance = (goal-state.head<3>()).squaredNorm();
+	//Float distance = sqrt((goal-state.head<3>()).squaredNorm());
+	Float distance = (goal-state.head<3>()).norm();
 	Float err_speed;
 	
+	cout<<"goal "<<goal.transpose()<<endl;
+	cout<<"state "<<state.head<3>().transpose()<<endl;	
+	cout<<"distance "<<distance<<endl;
 	
 	
-	if (distance > 10.0){
+	
+	if (distance > 1.0){
 		
-		err_speed = targetV - curr_speed;
+		err_speed = targetV*1.1- curr_speed;
 		
 	}
 	else{
 		
 		
-		err_speed = (targetV)*0.5 - curr_speed;
+		err_speed = (targetV)*0.8 - curr_speed;
 		
 		//cout<<"targetVF "<<targetV<<endl;
 		//cout<<"curr_speed "<<curr_speed<<endl;

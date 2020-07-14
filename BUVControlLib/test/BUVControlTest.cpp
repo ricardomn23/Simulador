@@ -88,7 +88,6 @@ int main()
 	b.setGoToKd_pitch(config.getFloat("goTo_Kd_pitch", 0.1));
 	b.setGoToKd_speed(config.getFloat("goTo_Kd_speed", 0.1));
 	b.setGoToKi_speed(config.getFloat("goTo_Ki_speed", 0.1));
-	b.setMinSpeed(config.getFloat("minSpeed", 0.4));
 	
 
 	Controller c;
@@ -135,14 +134,7 @@ int main()
 	std::tuple<std::function<float(float)>, std::function<float(float)>> zFunctions = getFunction(config, "zTargetFunction", 0.0);
 	std::function<float(float)> zTargetFunction = std::get<0>(zFunctions);
 	std::function<float(float)> zDTargetFunction = std::get<1>(zFunctions);
-	/*
-	float vx = xDTargetFunction (duration) - xDTargetFunction (0.0);
-	float vy = yDTargetFunction (duration) - yDTargetFunction (0.0);
-	float vz = zDTargetFunction (duration) - zDTargetFunction (0.0);
-	float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
 	
-	cout<<"targetV "<<targetV<<endl;
-	*/
 	
 	float t = 0.0;
 	
@@ -157,7 +149,7 @@ int main()
 		float vz = zDTargetFunction (t);
 		float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
 		
-		cout<<"targetV "<<targetV<<endl;
+		//cout<<"targetV "<<targetV<<endl;
 		
 		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			

@@ -49,6 +49,8 @@ public:
 		return ds; }
 	DDState const &getDDState() {
 		return dds; }
+	SeaCurr const &getSeaCurr() {
+		return seaCurr; }
 
 protected:
 	void updateLog();

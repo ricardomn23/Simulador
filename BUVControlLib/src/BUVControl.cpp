@@ -122,15 +122,15 @@ Behaviour::Actuation Behaviour::follow(Goal const &g, State const &state, DState
 	
 	
 	
-	if (distance > 1.0){
+	if (distance > 1.5){
 		
-		err_speed = targetV*1.1- curr_speed;
+		err_speed = targetV*1.05- curr_speed;
 		
 	}
 	else{
 		
 		
-		err_speed = (targetV)*0.8 - curr_speed;
+		err_speed = (targetV) - curr_speed;
 		
 		//cout<<"targetVF "<<targetV<<endl;
 		//cout<<"curr_speed "<<curr_speed<<endl;
@@ -250,11 +250,15 @@ void Controller::pitchControl( Float dPitch, MotorCommand &mCommand ) {
 
 void Controller::headingControl( Float dHeading, MotorCommand &mCommand ) {
 	mCommand(1,0) = - LIMIT(dHeading,-1.0,1.0) * maxTailDev;                   // Positive deflection --> negative heading
+	
+	//cout<<"mCommand(1,0) "<<mCommand(1,0)<<endl;
 }
 
 void Controller::speedControl( Float dSpeed, MotorCommand &mCommand ) {
 	mCommand(2,0) = cruiseTailAmp;
 	mCommand(0,0) = LIMIT(dSpeed,0.0,1.0) * maxTailFreq;
+	
+	//cout<<"mCommand(0,0) "<<mCommand(0,0)<<endl;
 }
 /*
 //limitador apenas do angulo de amplitude

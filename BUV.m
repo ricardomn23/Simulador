@@ -1,5 +1,5 @@
-!bash -c "make"
-!bash -c "./bin/BUVSim"
+%!bash -c "make"
+%!bash -c "./bin/BUVSim"
 load BUV1_Sim.log
 figure
 hold on

@@ -91,14 +91,14 @@ int main()
 	
 
 	Controller c;
-	c.setTailMaxAmp(config.getFloat("tailMaxAmp", 45.0));
-	c.setTailMaxDeviation(config.getFloat("tailMaxDeviation", 60.0));
-	c.setTailMaxFreq(config.getFloat("tailMaxFreq", 3.0));
-	c.setTailCruiseAmp(config.getFloat("tailCruiseAmp", 20.0));
-	c.setSideMaxAmp(config.getFloat("sideMaxAmp", 45.0));
-	c.setSideMaxDeviation(config.getFloat("sideMaxDeviation", 60.0));
-	c.setSideMaxFreq(config.getFloat("sideMaxFreq", 3.0));
-	c.setCruiseSideAmp(config.getFloat("cruiseSideAm", 20.0));
+	c.setTailMaxAmp(config.getFloat("maxTailAmp", 45.0));
+	c.setTailMaxDeviation(config.getFloat("maxTailDev", 60.0));
+	c.setTailMaxFreq(config.getFloat("maxTailFreq", 3.0));
+	c.setTailCruiseAmp(config.getFloat("cruiseTailAmp", 20.0));
+	c.setSideMaxAmp(config.getFloat("maxSideAmp", 45.0));
+	c.setSideMaxDeviation(config.getFloat("maxSideDev", 60.0));
+	c.setSideMaxFreq(config.getFloat("maxSideFreq", 3.0));
+	c.setCruiseSideAmp(config.getFloat("cruiseSideAmp", 20.0));
 	c.setCruiseSideFreq(config.getFloat("cruiseSideFreq", 1.0));
 
 	Behaviour::Actuation act;
@@ -107,8 +107,6 @@ int main()
 	
 	Behaviour::Goal goal = config.getVector3f("goal", Eigen::Vector3f(0.0,0.0,0.0));
 	
-	//Behaviour::Goal target;
-	//target << 15.0, 10.0, 5.0;
 	Behaviour::Goal target = config.getVector3f("followTarget", Eigen::Vector3f(0.0,0.0,0.0));
 	
 	float depth = config.getFloat("goToDepth", -10.0); //seleção da profundidade pretendida
@@ -148,8 +146,7 @@ int main()
 		float vy = yDTargetFunction (t);
 		float vz = zDTargetFunction (t);
 		float targetV = sqrt(SQR(vx)+SQR(vy)+SQR(vz));
-		
-		//cout<<"targetV "<<targetV<<endl;
+
 		
 		switch (runnigMethod){ //switch para escolher qual o controlador a ser utilizado no ficheiro de configuração
 			
@@ -175,8 +172,6 @@ int main()
 		// Simulate
 		buv.setMotorCommands(mCommand);
 		buv.update();
-		// cout << "State:  " << buv.getState().transpose() << endl;
-		// cout << "DState: " << buv.getDState().transpose() << endl;
 
 		// Control
 		if( b.hasReachedPoint( buv.getState()) )
